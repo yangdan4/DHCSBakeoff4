@@ -6,7 +6,7 @@ KetaiSensor sensor;
 
 float cursorX, cursorY;
 float light = 0; 
-float proxSensorThreshold = 15; //you will need to change this per your device.
+float proxSensorThreshold = 2; //you will need to change this per your device.
 
 private class Target
 {
@@ -120,9 +120,9 @@ void draw() {
     }*/
   textSize(50);
   if (targets.get(index).action==0)
-    text("Jerk in z direction", width/2, 150);
+    text("Jerk left", width/2, 150);
   else
-    text("Tap light sensor", width/2, 150);
+    text("Jerk right", width/2, 150);
   }
 
   fill(255);//white
@@ -132,37 +132,45 @@ void draw() {
 
 void onAccelerometerEvent(float x, float y, float z)
 {
-  
-  println(z);
-  if(chosen == 0)
+  int thres = 4;
+  if(chosen == -1)
   {
-    if(abs(z)>20)
+    int index = trialIndex;
+  
+    if (userDone || index>=targets.size())
+      return;
+  
+    Target t = targets.get(index);
+  
+    if (t==null)
+      return;
+    if(abs(x) > thres && abs(y) < thres)
     {
-      if(targets.get(trialIndex).action == 0)
+      if(x > thres)
       {
-        println("right action");
-        if(choice == targets.get(trialIndex).target)
-        {
-          println("Right target");
-          trialIndex++; //next trial
-        } else
-        {
-          if (trialIndex>0)
-          {
-            trialIndex--; //move back one trial as penalty!
-          }
-          println("wrong target");
-        }
+        //bottom
+        choice = 0;
       }
-      else
+      else if(x < -thres)
       {
-        if (trialIndex>0)
-        {
-           trialIndex--; //move back one trial as penalty!
-        }
-        println("Wrong action");
+        //top
+        choice = 1;
       }
-      chosen = -1;
+      chosen = 0;
+    }
+    else if(abs(x) < thres && abs(y) > thres)
+    {
+      if(y > thres)
+      {
+        //right
+        choice = 2;
+      }
+      else if(y < -thres)
+      {
+        //left
+        choice = 3;
+      }
+      chosen = 0;
     }
   }
   
@@ -202,59 +210,51 @@ void onAccelerometerEvent(float x, float y, float z)
         println("backward");
       }
     }
-  }*/
+  }*///end comment here
   
   
 }
 
 void onGyroscopeEvent(float x, float y, float z)
 {
-  
-  if(chosen == -1)
+  if(chosen == 0)
   {
-    int index = trialIndex;
-  
-    if (userDone || index>=targets.size())
-      return;
-  
-    Target t = targets.get(index);
-  
-    if (t==null)
-      return;
-    if(abs(x) > 5 && abs(y) < 5)
+    if(abs(z)>1)
     {
-      if(x > 5)
+      if(z > 1 && targets.get(trialIndex).action == 0 || z < -1 && targets.get(trialIndex).action == 1)
       {
-        //bottom
-        choice = 2;
+        println("right action");
+        if(choice == targets.get(trialIndex).target)
+        {
+          println("Right target");
+          trialIndex++; //next trial
+        } else
+        {
+          if (trialIndex>0)
+          {
+            trialIndex--; //move back one trial as penalty!
+          }
+          println("wrong target");
+        }
       }
-      else if(x < -5)
+      else
       {
-        //top
-        choice = 3;
+        if (trialIndex>0)
+        {
+           trialIndex--; //move back one trial as penalty!
+        }
+        println("Wrong action");
       }
-      chosen = 0;
-    }
-    else if(abs(x) < 5 && abs(y) > 5)
-    {
-      if(y > 5)
-      {
-        //right
-        choice = 1;
-      }
-      else if(y < -5)
-      {
-        //left
-        choice = 0;
-      }
-      chosen = 0;
+      chosen = -1;
     }
   }
+  
+  
   //println(z);
   
 }
 
-void onLightEvent(float v) //this just updates the light value
+/*void onLightEvent(float v) //this just updates the light value
 {
   if(chosen == 0)
   {
@@ -287,4 +287,4 @@ void onLightEvent(float v) //this just updates the light value
       chosen = -1;
     }
   }
-}
+}*/
