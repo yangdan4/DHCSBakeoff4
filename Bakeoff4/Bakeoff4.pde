@@ -120,9 +120,9 @@ void draw() {
     }*/
   textSize(50);
   if (targets.get(index).action==0)
-    text("Jerk left", width/2, 150);
+    text("SHAKE LEFT AND RIGHT", width/2, 150);
   else
-    text("Jerk right", width/2, 150);
+    text("JERK UP OR DOWN", width/2, 150);
   }
 
   fill(255);//white
@@ -130,9 +130,65 @@ void draw() {
   text("Target #" + (targets.get(index).target)+1, width/2, 100);
 }
 
-void onAccelerometerEvent(float x, float y, float z)
+void onLinearAccelerationEvent(float x, float y, float z)
 {
-  int thres = 4;
+  int thres1 = 3;
+  float cali = 0;
+  if(chosen == 0)
+  {
+    if(abs(y - cali) > thres1 || abs(x - cali) > thres1)
+    {
+      if(abs(y - cali) > thres1 && targets.get(trialIndex).action == 0)
+      {
+        println("right action");
+        if(choice == targets.get(trialIndex).target)
+        {
+          println("Right target");
+          trialIndex++; //next trial
+        } else
+        {
+          if (trialIndex>0)
+          {
+            trialIndex--; //move back one trial as penalty!
+          }
+          println("wrong target");
+        }
+      }
+      else if(abs(x - cali) > thres1 && targets.get(trialIndex).action == 1)
+      {  
+        println("right action");
+        if(choice == targets.get(trialIndex).target)
+        {
+          println("Right target");
+          trialIndex++; //next trial
+        } else
+        {
+          if (trialIndex>0)
+          {
+            trialIndex--; //move back one trial as penalty!
+          }
+          println("wrong target");
+        }
+      }
+      else
+      {
+        if (trialIndex>0)
+        {
+           trialIndex--; //move back one trial as penalty!
+        }
+        println("Wrong action");
+      }
+      chosen = -1;
+    }
+  }
+}
+
+void onGyroscopeEvent(float x, float y, float z)
+{
+  
+  
+  
+  int thres = 2;
   if(chosen == -1)
   {
     int index = trialIndex;
@@ -149,12 +205,12 @@ void onAccelerometerEvent(float x, float y, float z)
       if(x > thres)
       {
         //bottom
-        choice = 0;
+        choice = 2;
       }
       else if(x < -thres)
       {
         //top
-        choice = 1;
+        choice = 3;
       }
       chosen = 0;
     }
@@ -163,12 +219,12 @@ void onAccelerometerEvent(float x, float y, float z)
       if(y > thres)
       {
         //right
-        choice = 2;
+        choice = 1;
       }
       else if(y < -thres)
       {
         //left
-        choice = 3;
+        choice = 0;
       }
       chosen = 0;
     }
@@ -212,45 +268,6 @@ void onAccelerometerEvent(float x, float y, float z)
     }
   }*///end comment here
   
-  
-}
-
-void onGyroscopeEvent(float x, float y, float z)
-{
-  if(chosen == 0)
-  {
-    if(abs(z)>1)
-    {
-      if(z > 1 && targets.get(trialIndex).action == 0 || z < -1 && targets.get(trialIndex).action == 1)
-      {
-        println("right action");
-        if(choice == targets.get(trialIndex).target)
-        {
-          println("Right target");
-          trialIndex++; //next trial
-        } else
-        {
-          if (trialIndex>0)
-          {
-            trialIndex--; //move back one trial as penalty!
-          }
-          println("wrong target");
-        }
-      }
-      else
-      {
-        if (trialIndex>0)
-        {
-           trialIndex--; //move back one trial as penalty!
-        }
-        println("Wrong action");
-      }
-      chosen = -1;
-    }
-  }
-  
-  
-  //println(z);
   
 }
 
